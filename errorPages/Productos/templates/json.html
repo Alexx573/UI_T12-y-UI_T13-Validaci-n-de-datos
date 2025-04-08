@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>lista de productos con JSON</h1>
+    <div id="productos"></div>
+
+    <script>
+        //usando fetch
+        function cargarProductos(){
+            fetch('/productos/api/get/')
+            .then(response => response.json())
+            .then(data => {
+                let productosDiv = document.getElementById('productos');
+                productosDiv.innerHTML = '';
+                data.forEach(producto =>{
+                    productosDiv.innerHTML += `<p><strong>${producto.nombre}</strong> - 
+                        precio: $${producto.precio} <br> <img src="${producto.imagen}" width="100"/> </p>`
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        cargarProductos();
+    </script>
+</body>
+</html>

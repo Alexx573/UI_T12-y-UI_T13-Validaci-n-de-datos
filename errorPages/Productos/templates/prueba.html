@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .page{
+            transform: translateX(100%);
+            animation: slideIn 1..0s forwards;
+
+        }
+        @keyframes slideIn{
+            from {transform: translateX(100%);}
+            to {transform: translateX(-100%);}
+        }
+        .pageZ{
+            transform: scale(0.8);
+            animation: zoomIn 2.0s forwards;
+
+        }
+
+        @keyframes zoomIn {
+            from {transform: scale(0.8); opacity: 0;}
+            to{transform: scale(1); opacity:1;}
+            
+        }
+    </style>
+</head>
+<body class="page">
+    <h1>Titulo de la pagina </h1>
+    <img src="https://static1.makeuseofimages.com/wordpress/wp-content/uploads/2023/02/google-imagen-ai-imagination.jpg" alt="">
+    <h1>Bienvenido a la prueba de animacion entre pagina</h1>
+    <a href="{%url 'agregar_productos'%}">Ir a agregar Producto</a>
+    
+    
+    <script>
+        document.querySelectorAll("a".forEach(link =>{
+            link.addEventListener("click", function(event){
+                event.preventDefault();
+                document.body.classList.add("page");
+                setTimeout(() =>{
+                    window.location.href = this.href;
+                }, 1000);
+            });
+        }));
+
+    </script>
+</body>
+</html>

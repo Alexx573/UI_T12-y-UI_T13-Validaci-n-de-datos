@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+        <style>
+            .page{
+                opacity:0;
+                animation: fadeIn 0.5s forwards;
+
+            }
+            @keyframes fadeIn{
+                from {opacity: 0;}
+                to {opacity: 1;}
+            }
+        </style>
+</head>
+
+<body class="page">
+    <div class="container">
+        <div class="col">
+            <div class="row">
+
+                <div id="spinner" class="text-center col" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                    </div>
+                    <span>Cargando...</span>
+                </div>
+                <!--El formulario -->
+                <div class="col-6 mt-3">
+                    <h1>agregar producto</h1>
+                    <form method="post" id="productoForm">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button class="btn-primary" type="submit">Agregar </button>
+                    </form>
+                    <a href="{%url 'ver'%}">Ver productos</a>
+                </div>
+                <div>
+                    <p id="mensaje"></p>
+                </div>
+                <!--La vista de productos-->
+                <div class="col-6 mt-3">
+                    <h1>Ver productos</h1>
+                    <div class="row" id="productos"></div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <script>
+        function toogleSpinner(show) {
+            document.getElementById('spinner').style.display = show ? 'block' : 'none';
+        }
+    </script>
+
+    <script>
+        // vamos a usar el formulario pra hacer un request POST a mi API
+        var form = document.getElementById('productoForm');
+        // El event ees el comportamiento del formulario
+        form.addEventListener('submit', function (event) {
+            //Par aEVITAR QUE SE MANDE UN FORM EN ESTE CONTEXTO 
+            event.preventDefault();
+            //Obterner los datos del formulario
+            let formData = new FormData(this);
+
+            //converti los datos a JSON
+            let jsonData = {};
+            formData.forEach((value, key) => jsonData[key] = value);
+
+            //ENviar estos datos al servidor 
+            //fetch
+            toogleSpinner(true)
+            fetch('/productos/api/', {
+                method: 'POST',
+                body: JSON.stringify(jsonData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('mensaje').innerText = 'Registro exitoso';
+                    //Repintar los elemenos 
+                    cargarProductos();
+                })
+                .catch(error => console.error('Error:', error))
+                .finally(() => toogleSpinner(false));
+        });
+
+
+        //fUNCION PARA OPTENER EL TOKEN CSRF DE LA COOKIE DJANGO
+        function getCSRFToken() {
+            let cookieValue = null;
+            let cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken')) {
+                    cookieValue = cookie.substring('csrftoken='.length, cookie.length);
+                    break;
+                }
+            }
+            return cookieValue;
+        }
+
+        toogleSpinner(true)
+        function cargarProductos() {
+            fetch('/productos/api/')
+                .then(response => response.json())
+                .then(data => {
+                    let productosDiv = document.getElementById('productos');
+                    productosDiv.innerHTML = '';
+                    data.forEach(producto => {
+                        productosDiv.innerHTML += `<div class= "col-3"><strong>${producto.nombre}</strong> - 
+                        precio: $${producto.precio} <br> <img src="${producto.imagen}" width="100"/> </div>`
+                    });
+                })
+                .catch(error => console.error('Error:', error))
+                .finally(() => toogleSpinner(false));
+        }
+
+    </script>
+
+</body>
+
+</html>
